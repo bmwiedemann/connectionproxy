@@ -10,11 +10,11 @@ our (%options,%denv,%clientdata,
 $cgi,$sel,$path,@shorterror,@longerror);
 
 %options=qw(
-port		8080
-to       www.zq1.de:80
+port		993
+to       mail.zq1.de:993
 logfile		/var/log/httpd/connectionproxy
 uid		48
-debug		1
+debug		0
 );
 
 use IO::Socket;
@@ -34,8 +34,8 @@ sub accesslog($) {
 
 sub parseoptions()
 {
- my @options=qw(port=i uid=i keepalive! debug|d! teergrube=i root=s serverstring=s logfile:s htpasswd:s
- pw=s admin=s userdir:s default:s help|h|?
+ my @options=qw(port=i uid=i debug|d! to=s logfile:s
+help|h|?
 );
  my($paramfile)=($path."bmwrc");
  local @ARGV=@ARGV;
@@ -59,7 +59,8 @@ sub openlog() {
 
 sub closecon($) {
 	my ($client)=@_;
-   diag($client->peerhost.":".$client->peerport." connection closed");
+	return unless $client;
+   	diag($client->peerhost.":".$client->peerport." connection closed");
 	$sel->remove($clientdata{$client}->{fd});
    close($clientdata{$client}->{fd});
 	delete($clientdata{$client});
@@ -78,10 +79,10 @@ my $class="IO::Socket::INET".($haveinet6?"6":"");
 my $new_client=$class->new(Proto=>"tcp", LocalPort=> $options{port}, Listen=>2, Reuse=>1) 
   or die "Can not open listen port $options{port}\n";
 
-use Net::Server::Daemonize qw(daemonize);
-if(!$options{debug} && $>==0 ) {
+#use Net::Server::Daemonize qw(daemonize);
+#if(!$options{debug} && $>==0 ) {
 #   daemonize($options{uid}, "nobody", "/var/run/bmwtinyhttpd.pid");
-}
+#}
 if($>==0 && $options{uid}) {
   umask(0002);
   $>=$)=$options{uid};
@@ -112,7 +113,7 @@ while (1) {
      my $add = $client->accept;
      my $client=$add;
 
-     my $sock= new IO::Socket::INET(PeerAddr => $options{to}, Proto=>"tcp", Timeout=>10);
+     my $sock= new IO::Socket::INET6(PeerAddr => $options{to}, Proto=>"tcp", Timeout=>10);
      if(!$sock){
         closecon($client);
         next;

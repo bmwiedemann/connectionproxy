@@ -4,6 +4,8 @@
 # 
 # this is is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License
+#
+# zypper in perl-Protocol-WebSocket
 
 use strict;
 our (%options,%denv,%clientdata,
