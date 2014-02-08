@@ -178,7 +178,7 @@ while (1) {
        if($h->is_done) {
          diag("WS connected");
          $clientdata{$client}->{state}="connected";
-         next;
+         next unless $_;
        }
      }
      my $frame;
