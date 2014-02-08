@@ -38,8 +38,8 @@ sub accesslog($) {
 
 sub parseoptions()
 {
- my @options=qw(port=i uid=i keepalive! debug|d! teergrube=i root=s serverstring=s logfile:s htpasswd:s
- pw=s admin=s userdir:s default:s help|h|?
+ my @options=qw(port=i uid=i debug|d! to=s logfile:s
+help|h|?
 );
  my($paramfile)=($path."bmwrc");
  local @ARGV=@ARGV;
@@ -62,14 +62,15 @@ sub openlog() {
 }
 
 sub closecon($) {
-	my ($client)=@_;
-   diag($client->peerhost.":".$client->peerport." connection closed");
-	$sel->remove($clientdata{$client}->{fd});
-   close($clientdata{$client}->{fd});
-	delete($clientdata{$client});
-	$sel->remove($client);
-	close($client);
-	return 0;
+  my ($client)=@_;
+  return unless $client;
+  diag($client->peerhost.":".$client->peerport." connection closed");
+  $sel->remove($clientdata{$client}->{fd});
+  close($clientdata{$client}->{fd});
+  delete($clientdata{$client});
+  $sel->remove($client);
+  close($client);
+  return 0;
 }
 
 
