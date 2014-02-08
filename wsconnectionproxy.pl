@@ -77,13 +77,20 @@ sub closecon($) {
 # main
 
 parseoptions();
+
+my @header=("Sec-WebSocket-Protocol: binary, base64");
+if($options{to}=~m/token=([^;&]*)/) {
+  push(@header, "Cookie: token=$1");
+}
+$options{to}=~s{http(://[^/]+)/vnc.*}{ws$1/websockify};
+
 our $haveinet6;
 eval{require IO::Socket::INET6;} and ($haveinet6=1);
 my $class="IO::Socket::INET".($haveinet6?"6":"");
 my $new_client=$class->new(Proto=>"tcp", LocalPort=> $options{port}, Listen=>2, Reuse=>1) 
   or die "Can not open listen port $options{port}\n";
 
-use Net::Server::Daemonize qw(daemonize);
+#use Net::Server::Daemonize qw(daemonize);
 if(!$options{debug} && $>==0 ) {
 #   daemonize($options{uid}, "nobody", "/var/run/bmwtinyhttpd.pid");
 }
@@ -125,7 +132,13 @@ while (1) {
         next;
      }
      my $h = Protocol::WebSocket::Handshake::Client->new(url => $options{to});
-     if(!syswrite($sock, $h->to_string)) {
+     my $upgrade=$h->to_string;
+     if(@header) {
+        my $h=join("\015\012", @header);
+        $upgrade=~s/^Upgrade: /$h\015\012$&/m;
+     }
+     diag($upgrade);
+     if(!syswrite($sock, $upgrade)) {
         closecon($client);
         next;
      }
@@ -189,7 +202,7 @@ while (1) {
          $frame=Protocol::WebSocket::Frame->new($_);
          $_=$frame->to_bytes;
        }
-       syswrite($clientdata{$client}->{fd}, $_);
+       syswrite($clientdata{$client}->{fd}, $_) if $clientdata{$client};
      }
    }
   }
