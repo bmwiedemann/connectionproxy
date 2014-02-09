@@ -78,7 +78,7 @@ sub closecon($) {
 
 parseoptions();
 
-my @header=("Sec-WebSocket-Protocol: binary, base64");
+my @header=("Sec-WebSocket-Protocol: binary");
 if($options{to}=~m/token=([^;&]*)/) {
   push(@header, "Cookie: token=$1");
 }
@@ -199,7 +199,7 @@ while (1) {
          }
        } else {
          # ws-encapsulate
-         $frame=Protocol::WebSocket::Frame->new($_);
+         $frame=Protocol::WebSocket::Frame->new(buffer=>$_, masked=>1, type=>'binary');
          $_=$frame->to_bytes;
        }
        syswrite($clientdata{$client}->{fd}, $_) if $clientdata{$client};
