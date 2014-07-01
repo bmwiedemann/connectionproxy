@@ -82,7 +82,7 @@ my @header=("Sec-WebSocket-Protocol: binary");
 if($options{to}=~m/token=([^;&]*)/) {
   push(@header, "Cookie: token=$1");
 }
-$options{to}=~s{http(://[^/]+)/vnc.*}{ws$1/websockify};
+$options{to}=~s{http(s?)(://[^/]+)/vnc.*}{ws$1$2/websockify};
 
 our $haveinet6;
 eval{require IO::Socket::INET6;} and ($haveinet6=1);
@@ -125,8 +125,13 @@ while (1) {
      my $client=$add;
 
      my $tohostport=$options{to};
-     $tohostport=~s{^ws://([^/]*).*}{$1};
-     my $sock= new IO::Socket::INET(PeerAddr => $tohostport, Proto=>"tcp", Timeout=>10);
+     my $classclient = $class;
+     if($tohostport=~s{^ws://([^/]*).*}{$1}) {
+     } elsif($tohostport=~s{^wss://([^/]*).*}{$1}) {
+        require IO::Socket::SSL;
+        $classclient = "IO::Socket::SSL";
+     }
+     my $sock = $classclient->new(PeerAddr => $tohostport, Proto=>"tcp", Timeout=>10);
      if(!$sock){
         closecon($client);
         next;
