@@ -1,0 +1,44 @@
+#!/usr/bin/perl -w
+use strict;
+use Net::OpenStack::Compute;
+
+my $vncviewer = $ENV{VNCVIEWER} || "gvncviewer";
+my $compute = Net::OpenStack::Compute->new(
+    auth_url     => $ENV{OS_AUTH_URL},
+    user         => $ENV{OS_USERNAME},
+    password     => $ENV{OS_PASSWORD},
+    project_id   => $ENV{OS_TENANT_NAME},
+    #region       => 'defaultregion',
+);
+
+sub find_free_port()
+{
+    #check for used ports in netstat -tln
+    open(my $fd, "<", "/proc/net/tcp6") or die $!;
+    my %usedport;
+    while(<$fd>) {
+        m/^\s*\d+: [0-9A-F]+:([0-9A-F]+) [0-9A-F]+:[0-9A-F]+ 0A / or next;
+	my $port = hex($1);
+	$usedport{$port}=1;
+    }
+    for my $p (5900..5999) {
+        return $p unless $usedport{$p};
+    }
+}
+
+my $s = $compute->get_servers();
+my $id = $s->[0]->{id}; # look at first server in the list
+my $url = $compute->get_vnc_console($id)->{url};
+
+my $port = find_free_port();
+my $pid = fork();
+die unless defined $pid;
+if($pid) {
+    $port -= 5900;
+    sleep 1;
+    system($vncviewer, "localhost:$port");
+    kill 'TERM', $pid;
+} else {
+    exec("./wsconnectionproxy.pl", "--to", $url, "--port", $port);
+}
+
