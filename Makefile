@@ -1,3 +1,10 @@
+PREFIX=/usr/local/
+all:
+	echo nothing to compile
+
+install:
+	for f in novncviewer wsconnectionproxy.pl ; do install -D -m 755 $$f ${DESTDIR}${PREFIX}/bin/$$f ; done
+
 test:
 	./novncviewer
 
