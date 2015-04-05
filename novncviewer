@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+# written 2015 by Bernhard M. Wiedemann
+# usage: INSTANCEID=xxx novncviewer
 use strict;
 use Net::OpenStack::Compute;
 
