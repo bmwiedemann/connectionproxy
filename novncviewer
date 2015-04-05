@@ -3,6 +3,7 @@
 # usage: INSTANCEID=xxx novncviewer
 use strict;
 use Net::OpenStack::Compute;
+use FindBin;
 
 my $vncviewer = $ENV{VNCVIEWER} || "gvncviewer";
 my $compute = Net::OpenStack::Compute->new(
@@ -45,6 +46,6 @@ if($pid) {
     system($vncviewer, "localhost:$port");
     kill 'TERM', $pid;
 } else {
-    exec("./wsconnectionproxy.pl", "--to", $url, "--port", $port);
+    exec("$FindBin::Bin/wsconnectionproxy.pl", "--to", $url, "--port", $port);
 }
 
