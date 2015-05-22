@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # written 2015 by Bernhard M. Wiedemann
-# usage: INSTANCEID=xxx novncviewer
+# usage: novncviewer $INSTANCEID
 use strict;
 use Net::OpenStack::Compute;
 use FindBin;
@@ -29,7 +29,7 @@ sub find_free_port()
     }
 }
 
-my $id = $ENV{INSTANCEID};
+my $id = $ENV{INSTANCEID}||shift;
 if(!$id) {
     my $s = $compute->get_servers();
     $id = $s->[0]->{id}; # look at first server in the list
