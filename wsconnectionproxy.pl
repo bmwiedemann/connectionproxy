@@ -14,7 +14,6 @@ $cgi,$sel,$path,@shorterror,@longerror);
 %options=qw(
 port		5990
 to       ws://localhost:9001/
-logfile		/var/log/httpd/connectionproxy
 uid		48
 debug		1
 );
@@ -26,19 +25,14 @@ use FileHandle;
 use Protocol::WebSocket::Handshake::Client;
 
 ($path=$0)=~s+[^/]*$++;$path="./" if($path eq "");
-#require $path.'blib.pl';
 
 sub defaults1 ($$) {$_[0]=$_[1] unless(defined($_[0]))}
 sub defaults2 ($$) {$_[0]=$_[1] unless(defined($_[0]) and $_[0] ne "")}
 sub diag ($;$) {my($m,$l)=@_;print STDERR "DIAGNOSTIC: $m\n" if($options{debug} || $l);}
-sub accesslog($) {
-	my ($client)=@_;
-}
-
 
 sub parseoptions()
 {
- my @options=qw(port=i uid=i debug|d! to=s logfile:s
+ my @options=qw(port=i uid=i debug|d! to=s
 help|h|?
 );
  my($paramfile)=($path."bmwrc");
@@ -53,12 +47,6 @@ help|h|?
  if(!GetOptions(\%options, @options) || (@ARGV && $ARGV[0] ne "")) {die "invalid option on commandline. @ARGV\n"}
  if($options{help}) {foreach(@options){m/([a-z]*)(.*)/;print "$1=$options{$1} ($2)\n"}; exit(0);}
  while(my @a=each(%options)) {if($a[1] eq "-"){$options{$a[0]}=""}}
-}
-
-sub openlog() {
-   return 0;
-	if($options{logfile}) {open(LOG, ">> $options{logfile}") or die "error opening $options{logfile}: $!";}
-	select((select(LOG), $| = 1)[0]); #imediately flush log
 }
 
 sub closecon($) {
@@ -100,14 +88,13 @@ if($>==0 && $options{uid}) {
   $options{uid} == $> or 
        die "unable to setuid($options{uid})";
 }
-openlog();
 diag("listening on port $options{port}");
 
 
 $/="\012";
 {
   my $s=$Config{sig_name};
-  if($s=~m/\bHUP\b/) {$SIG{HUP} = sub{parseoptions();openlog()};}
+  if($s=~m/\bHUP\b/) {$SIG{HUP} = sub{parseoptions();};}
   if($s=~m/\bPIPE\b/) {$SIG{PIPE} = 'IGNORE';}
   if($s=~m/\bCHLD\b/) {$SIG{CHLD} = sub{wait()} }
 }
