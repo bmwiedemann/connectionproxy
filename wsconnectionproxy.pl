@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # TCP<->WebSocket connection proxy
-# Copyright 2002-2014 Bernhard M. Wiedemann <httpdbmw@lsmod.de>
+# Copyright 2002-2015 Bernhard M. Wiedemann <httpdbmw@lsmod.de>
 # 
 # this is is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License
@@ -12,7 +12,7 @@ our (%options,%denv,%clientdata,
 $cgi,$sel,$path,@shorterror,@longerror);
 
 %options=qw(
-port		8080
+port		5990
 to       ws://localhost:9001/
 logfile		/var/log/httpd/connectionproxy
 uid		48
