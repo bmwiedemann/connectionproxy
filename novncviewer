@@ -6,6 +6,9 @@ use Net::OpenStack::Compute;
 use FindBin;
 
 my $vncviewer = $ENV{VNCVIEWER} || "gvncviewer";
+if(!$ENV{OS_AUTH_URL}) {
+        die "you need to source openrc.sh to have OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_TENANT_NAME variables setup\n"
+}
 my $compute = Net::OpenStack::Compute->new(
     auth_url     => $ENV{OS_AUTH_URL},
     user         => $ENV{OS_USERNAME},
