@@ -2,20 +2,12 @@
 # written 2015 by Bernhard M. Wiedemann
 # usage: novncviewer $INSTANCEID
 use strict;
-use Net::OpenStack::Compute;
 use FindBin;
 
 my $vncviewer = $ENV{VNCVIEWER} || "gvncviewer";
 if(!$ENV{OS_AUTH_URL}) {
         die "you need to source openrc.sh to have OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_TENANT_NAME variables setup\n"
 }
-my $compute = Net::OpenStack::Compute->new(
-    auth_url     => $ENV{OS_AUTH_URL},
-    user         => $ENV{OS_USERNAME},
-    password     => $ENV{OS_PASSWORD},
-    project_id   => $ENV{OS_TENANT_NAME},
-    #region       => 'defaultregion',
-);
 
 sub find_free_port()
 {
@@ -34,11 +26,12 @@ sub find_free_port()
 
 my $id = $ENV{INSTANCEID}||shift;
 if(!$id) {
-    my $s = $compute->get_servers();
-    $id = $s->[0]->{id}; # look at first server in the list
+    die "usage: $0 INSTANCEID\n"
 }
 
-my $url = $compute->get_vnc_console($id)->{url};
+$_ = `nova get-vnc-console $id novnc`;
+die "cannot get novnc URL from nova: $_" unless m{https?://[^ ]*};
+my $url = $&;
 
 my $port = find_free_port();
 my $pid = fork();
