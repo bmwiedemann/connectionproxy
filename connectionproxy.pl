@@ -3,7 +3,7 @@
 # Copyright 2002 Bernhard M. Wiedemann <httpdbmw@lsmod.de>
 # 
 # this is is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License
+# it under the terms of the GNU General Public License version 2
 
 use strict;
 our (%options,%denv,%clientdata,

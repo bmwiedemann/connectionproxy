@@ -1,6 +1,10 @@
 #!/usr/bin/perl -w
 # written 2015 by Bernhard M. Wiedemann
 # usage: novncviewer $INSTANCEID
+#
+# this is is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2
+
 use strict;
 use FindBin;
 

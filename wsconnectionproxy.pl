@@ -3,7 +3,7 @@
 # Copyright 2002-2015 Bernhard M. Wiedemann <httpdbmw@lsmod.de>
 # 
 # this is is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License
+# it under the terms of the GNU General Public License version 2
 #
 # zypper in perl-Protocol-WebSocket
 
